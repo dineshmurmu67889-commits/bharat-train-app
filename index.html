@@ -1,62 +1,68 @@
+
 <!DOCTYPE html>
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bharat Train App</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bharat Train - Asli Live</title>
 <style>
-*{box-sizing:border-box;font-family:Arial}
-body{margin:0;background:#f2f2f2}
-.header{background:#1a237e;color:#fff;padding:18px;text-align:center}
-.header h1{margin:0;font-size:22px}
-.header p{margin:5px 0 0;opacity:.9;font-size:13px}
-.card{background:#fff;margin:14px;padding:16px;border-radius:12px;box-shadow:0 2px 8px #0001}
-label{font-size:13px;font-weight:bold}
-input,select{width:100%;padding:12px;margin:6px 0 12px;border:1px solid #ccc;border-radius:8px;font-size:15px}
-button{width:100%;padding:13px;background:#ff5722;color:#fff;border:0;border-radius:8px;font-size:16px;font-weight:bold}
-.train{background:#fff;margin:10px 14px;padding:14px;border-radius:12px;border-left:5px solid #1a237e}
-.train b{font-size:16px}
-.small{color:#666;font-size:13px}
-.row{display:flex;justify-content:space-between}
-.price{color:green;font-weight:bold}
+body{font-family:Arial;background:#eef2ff;margin:0;padding:12px}
+.card{background:white;border-radius:15px;padding:18px;max-width:460px;margin:auto}
+h1{text-align:center;color:#1a237e;margin:0}
+.sub{text-align:center;color:green;font-size:13px;font-weight:bold}
+label{font-weight:bold;display:block;margin-top:12px}
+input{width:100%;padding:13px;border:2px solid #ddd;border-radius:10px;font-size:16px;box-sizing:border-box;margin-top:5px}
+button{width:100%;padding:14px;background:#ff5722;color:white;border:none;border-radius:10px;font-size:17px;margin-top:15px;font-weight:bold}
+.train{border-left:5px solid #1a237e;background:#f9f9f9;padding:12px;border-radius:10px;margin-top:12px}
+.price{float:right;color:green;font-weight:bold}
+#status{text-align:center;margin-top:10px;color:#555}
 </style>
 </head>
 <body>
-<div class="header">
-<h1>🇮🇳 Bharat Train App</h1>
-<p>Train Search • PNR • Live Status</p>
-</div>
-
 <div class="card">
-<label>From - Kahan Se</label>
-<input id="from" placeholder="Ex: Howrah / HWH" value="Howrah">
-<label>To - Kahan Tak</label>
-<input id="to" placeholder="Ex: Delhi / NDLS" value="Delhi">
-<label>Date</label>
-<input type="date" id="date" value="2026-11-15">
-<label>Train / PNR Number</label>
-<input id="pnr" placeholder="Ex: 12301 ya PNR">
-<button onclick="search()">🔍 TRAIN DHUNDO</button>
+<h1>🚂 Bharat Train</h1>
+<div class="sub" id="live">Backend se jud raha hai...</div>
+<label>From</label><input id="from" value="Howrah">
+<label>To</label><input id="to" value="Delhi">
+<label>Date</label><input id="date" type="date" value="2026-11-15">
+<label>Train / PNR</label><input id="trainNo" placeholder="Ex: 12301">
+<button onclick="search()">🔍 TRAIN DHUNDO - ASLI DATA</button>
+<div id="status"></div><div id="list"></div>
 </div>
-
-<div id="result"></div>
-
 <script>
-function search(){
-let from=document.getElementById('from').value||'Howrah';
-let to=document.getElementById('to').value||'Delhi';
-let trains=[
-{name:'12301 Howrah Rajdhani',time:'04:50 PM - 09:55 AM',dur:'17h 5m',price:'₹1,245',status:'On Time 🟢'},
-{name:'13009 Doon Express',time:'08:30 PM - 06:10 AM',dur:'21h 40m',price:'₹485',status:'15 min Late 🟡'},
-{name:'12381 Poorva Express',time:'08:15 AM - 06:05 AM',dur:'21h 50m',price:'₹520',status:'On Time 🟢'},
-];
-let h='<div class="card"><b>'+from+' ➜ '+to+'</b><br><span class="small">3 Trains Mili</span></div>';
-trains.forEach(t=>{
-h+=`<div class="train"><div class="row"><b>${t.name}</b><span class="price">${t.price}</span></div><div class="small">${t.time} • ${t.dur}</div><div class="small">${t.status} • Sleeper Available</div><br><button onclick="alert('Booking Demo - Train: ${t.name}')">Book Now</button></div>`;
-});
-document.getElementById('result').innerHTML=h;
+const BACKEND="https://bharat-train-backend.onrender.com";
+async function checkLive(){
+ try{let r=await fetch(BACKEND+"/");let t=await r.text();
+ document.getElementById('live').innerText="✅ Backend LIVE Hai: "+t.substring(0,40);
+ }catch(e){document.getElementById('live').innerText="❌ Backend se jud nahi paya";}
 }
-search();
+checkLive();
+async function search(){
+ let from=document.getElementById('from').value.trim();
+ let to=document.getElementById('to').value.trim();
+ let date=document.getElementById('date').value;
+ let trainNo=document.getElementById('trainNo').value.trim();
+ let list=document.getElementById('list');
+ let status=document.getElementById('status');
+ list.innerHTML="";status.innerText="Backend se asli data la rahe hai... ⏳";
+ let urls=[];
+ if(trainNo) urls.push(BACKEND+"/api/train/"+trainNo);
+ urls.push(BACKEND+"/api/trains?from="+encodeURIComponent(from)+"&to="+encodeURIComponent(to)+"&date="+date);
+ urls.push(BACKEND+"/api/search?from="+encodeURIComponent(from)+"&to="+encodeURIComponent(to));
+ urls.push(BACKEND+"/api/trains");
+ let got=null;
+ for(let u of urls){try{let r=await fetch(u);if(r.ok){got=await r.json();break;}}catch(e){}}
+ if(!got){status.innerText="⚠️ Backend LIVE hai, lekin usme Train dhundne wala API abhi nahi hai. Screenshot bhejo, Backend fix kar dunga.";return;}
+ status.innerText="✅ Backend se jawab mil gaya:";
+ let trains=got.trains||got.data||got.results||(Array.isArray(got)?got:[got]);
+ if(!trains.length){list.innerHTML="<p>Koi train nahi mili</p>";return;}
+ trains.forEach(t=>{
+  let name=t.name||t.trainName||t.train_name||"Train";
+  let no=t.number||t.trainNumber||t.train_no||"";
+  let price=t.price||t.fare||"";
+  list.innerHTML+=`<div class="train"><b>${no} ${name}</b><span class="price">₹${price}</span><br>${t.from||from} → ${t.to||to}<br>${t.departure||t.time||""} • ${t.status||"Live"}</div>`;
+ });
+}
 </script>
 </body>
 </html>
