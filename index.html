@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bharat Train App</title>
+<style>
+*{box-sizing:border-box;font-family:Arial}
+body{margin:0;background:#f2f2f2}
+.header{background:#1a237e;color:#fff;padding:18px;text-align:center}
+.header h1{margin:0;font-size:22px}
+.header p{margin:5px 0 0;opacity:.9;font-size:13px}
+.card{background:#fff;margin:14px;padding:16px;border-radius:12px;box-shadow:0 2px 8px #0001}
+label{font-size:13px;font-weight:bold}
+input,select{width:100%;padding:12px;margin:6px 0 12px;border:1px solid #ccc;border-radius:8px;font-size:15px}
+button{width:100%;padding:13px;background:#ff5722;color:#fff;border:0;border-radius:8px;font-size:16px;font-weight:bold}
+.train{background:#fff;margin:10px 14px;padding:14px;border-radius:12px;border-left:5px solid #1a237e}
+.train b{font-size:16px}
+.small{color:#666;font-size:13px}
+.row{display:flex;justify-content:space-between}
+.price{color:green;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>🇮🇳 Bharat Train App</h1>
+<p>Train Search • PNR • Live Status</p>
+</div>
+
+<div class="card">
+<label>From - Kahan Se</label>
+<input id="from" placeholder="Ex: Howrah / HWH" value="Howrah">
+<label>To - Kahan Tak</label>
+<input id="to" placeholder="Ex: Delhi / NDLS" value="Delhi">
+<label>Date</label>
+<input type="date" id="date" value="2026-11-15">
+<label>Train / PNR Number</label>
+<input id="pnr" placeholder="Ex: 12301 ya PNR">
+<button onclick="search()">🔍 TRAIN DHUNDO</button>
+</div>
+
+<div id="result"></div>
+
+<script>
+function search(){
+let from=document.getElementById('from').value||'Howrah';
+let to=document.getElementById('to').value||'Delhi';
+let trains=[
+{name:'12301 Howrah Rajdhani',time:'04:50 PM - 09:55 AM',dur:'17h 5m',price:'₹1,245',status:'On Time 🟢'},
+{name:'13009 Doon Express',time:'08:30 PM - 06:10 AM',dur:'21h 40m',price:'₹485',status:'15 min Late 🟡'},
+{name:'12381 Poorva Express',time:'08:15 AM - 06:05 AM',dur:'21h 50m',price:'₹520',status:'On Time 🟢'},
+];
+let h='<div class="card"><b>'+from+' ➜ '+to+'</b><br><span class="small">3 Trains Mili</span></div>';
+trains.forEach(t=>{
+h+=`<div class="train"><div class="row"><b>${t.name}</b><span class="price">${t.price}</span></div><div class="small">${t.time} • ${t.dur}</div><div class="small">${t.status} • Sleeper Available</div><br><button onclick="alert('Booking Demo - Train: ${t.name}')">Book Now</button></div>`;
+});
+document.getElementById('result').innerHTML=h;
+}
+search();
+</script>
+</body>
+</html>
